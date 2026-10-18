@@ -1,9 +1,7 @@
 using SistemaVenta.AplicacionWeb.Utilidades.AutoMapper;
 using SistemaVenta.IOC;
-using SistemaVenta.AplicacionWeb.Utilidades.Extensiones;
-using DinkToPdf;
-using DinkToPdf.Contracts;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using QuestPDF.Infrastructure;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,9 +18,9 @@ builder.Services.InyectarDependencia(builder.Configuration);
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
-var context = new CustomAssemblyLoadContext();
-context.LoadUnmanagedLibrary(Path.Combine(Directory.GetCurrentDirectory(), "Utilidades/LibreriaPDF/libwkhtmltox.dll"));
-builder.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
+// Receipts are generated with QuestPDF (free Community license)
+QuestPDF.Settings.License = LicenseType.Community;
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 

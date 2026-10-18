@@ -4,8 +4,7 @@ using SistemaVenta.AplicacionWeb.Models.ViewModels;
 using SistemaVenta.AplicacionWeb.Utilidades.Response;
 using SistemaVenta.BLL.Interfaces;
 using SistemaVenta.Entity;
-using DinkToPdf;
-using DinkToPdf.Contracts;
+using SistemaVenta.AplicacionWeb.Utilidades.Reportes;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
@@ -17,15 +16,18 @@ namespace SistemaVenta.AplicacionWeb.Controllers
         private readonly ITipoDocumentoVentaService _tipoDocumentoVentaService;
         private readonly IVentaService _ventaService;
         private readonly IMapper _mapper;
-        private readonly IConverter _converter;
+        private readonly INegocioService _negocioService;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         public VentaController(ITipoDocumentoVentaService tipoDocumentoVentaService,
-            IVentaService ventaService, IMapper mapper, IConverter converter)
+            IVentaService ventaService, IMapper mapper,
+            INegocioService negocioService, IHttpClientFactory httpClientFactory)
         {
             _tipoDocumentoVentaService = tipoDocumentoVentaService;
             _ventaService = ventaService;
             _mapper = mapper;
-            _converter = converter;
+            _negocioService = negocioService;
+            _httpClientFactory = httpClientFactory;
 
         }
 
@@ -100,27 +102,25 @@ namespace SistemaVenta.AplicacionWeb.Controllers
             return StatusCode(StatusCodes.Status200OK, vmHistorialVenta);
         }
 
-        public IActionResult MostrarPDFVenta(string numeroVenta)
+        public async Task<IActionResult> MostrarPDFVenta(string numeroVenta)
         {
-            string urlPlantillaVista = $"{this.Request.Scheme}://{this.Request.Host}/Plantilla/PDFVenta?numeroVenta={numeroVenta}";
+            VMVenta venta = _mapper.Map<VMVenta>(await _ventaService.Detalle(numeroVenta));
+            VMNegocio negocio = _mapper.Map<VMNegocio>(await _negocioService.Obtener());
 
-            var pdf = new HtmlToPdfDocument()
+            byte[]? logo = null;
+            if (!string.IsNullOrWhiteSpace(negocio.UrlLogo))
             {
-                GlobalSettings = new GlobalSettings()
+                try
                 {
-                    PaperSize = PaperKind.Letter,
-                    Orientation = Orientation.Portrait
-                },
-                Objects =
-                {
-                    new ObjectSettings()
-                    {
-                        Page = urlPlantillaVista
-                    }
+                    logo = await _httpClientFactory.CreateClient().GetByteArrayAsync(negocio.UrlLogo);
                 }
-            };
+                catch (Exception)
+                {
+                    // The receipt is still valid without the logo
+                }
+            }
 
-            var archivoPDF = _converter.Convert(pdf);
+            byte[] archivoPDF = ReciboVenta.Generar(venta, negocio, logo);
 
             return File(archivoPDF, "application/pdf");
         }
