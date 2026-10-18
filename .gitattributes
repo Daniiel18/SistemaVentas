@@ -1,0 +1,7 @@
+* text=auto
+
+# Third-party front-end libraries and the SB Admin 2 theme are not project code
+SistemaVenta.AplicacionWeb/wwwroot/vendor/** linguist-vendored
+SistemaVenta.AplicacionWeb/wwwroot/css/** linguist-vendored
+SistemaVenta.AplicacionWeb/wwwroot/scss/** linguist-vendored
+SistemaVenta.AplicacionWeb/wwwroot/js/sb-admin-2*.js linguist-vendored
