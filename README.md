@@ -4,6 +4,8 @@
 
 **A point-of-sale and inventory web app for small businesses: products, sales, receipts, users and a live dashboard.**
 
+**[🌐 Live demo](http://sistemaventas-daniel.runasp.net)**
+
 [![Build](https://github.com/Daniiel18/SistemaVentas/actions/workflows/build.yml/badge.svg)](https://github.com/Daniiel18/SistemaVentas/actions/workflows/build.yml)
 ![.NET](https://img.shields.io/badge/.NET-10_LTS-512BD4?logo=dotnet&logoColor=white)
 ![ASP.NET Core MVC](https://img.shields.io/badge/ASP.NET_Core-MVC-512BD4?logo=dotnet&logoColor=white)
@@ -60,6 +62,10 @@ dotnet run --project SistemaVenta.AplicacionWeb
 ```
 
 > Email and Firebase credentials are read from the `Configuracion` table at runtime, never from the source code. Fill those rows to enable password emails and photo uploads.
+
+## ☁️ Deployment
+
+The live demo runs on [MonsterASP.NET](https://www.monsterasp.net) (IIS, .NET 10) with its SQL Server database. The server builds the app straight from this repository with `dotnet publish`, and the production connection string lives only on the server in `appsettings.Production.json`, which is never committed.
 
 ## 📄 License
 
